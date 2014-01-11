@@ -1,0 +1,19 @@
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\obj\Debug\KTP2.csprojResolveAssemblyReference.cache
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\KTP2.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\KTP2.pdb
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\Assembly-CSharp.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\mscorlib.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\UnityEngine.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\Mono.Cecil.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\Assembly-CSharp-firstpass.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\TDx.TDxInput.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\Mono.Security.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\normidna.nlp
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\normnfc.nlp
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\normnfd.nlp
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\normnfkc.nlp
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\bin\Debug\normnfkd.nlp
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\obj\Debug\KTP2.dll
+D:\ksp-install\PLUGIN\KTP2\KTP2\KTP2\obj\Debug\KTP2.pdb
+D:\ksp-install\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins\KTP2.dll
+D:\ksp-install\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins\KTP2.pdb
