@@ -1,8 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KTP2\MyClass.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KTP2\KTP2-TEST.cs">
     <Files>
-      <File FileName="KTP2\MyClass.cs" Line="11" Column="1" />
+      <File FileName="KTP2\KTP2-TEST.cs" Line="54" Column="37" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

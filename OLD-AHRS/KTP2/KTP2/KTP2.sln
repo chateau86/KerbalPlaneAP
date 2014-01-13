@@ -16,5 +16,6 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = KTP2\KTP2.csproj
+		outputpath = ..\..\..\..\..\..\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins
 	EndGlobalSection
 EndGlobal

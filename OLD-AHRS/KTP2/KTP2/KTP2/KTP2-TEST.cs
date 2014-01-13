@@ -50,8 +50,8 @@ namespace KTP2
 				//switch
 				dispmode = 0;
 			}
-			textAreaString = GUI.TextArea (new Rect (30, 25, 300, 30), textAreaString);
-
+			//textAreaString = GUI.TextArea (new Rect (30, 25, 300, 30), textAreaString);
+			GUILayout.Label (textAreaString);
 
 			GUILayout.EndVertical();
 
