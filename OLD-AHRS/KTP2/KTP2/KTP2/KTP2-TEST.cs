@@ -54,17 +54,17 @@ namespace KTP2
 			mySty.padding = new RectOffset(8, 8, 8, 8);
 
 			GUILayout.BeginVertical();
-			if (GUILayout.Button("Toggle",mySty,GUILayout.ExpandWidth(true)))//GUILayout.Button is "true" when clicked
+			if (GUILayout.Button("Toggle",mySty,GUILayout.ExpandWidth(false)))//GUILayout.Button is "true" when clicked
 			{	
 				dispmode++;
 			}
-			if (GUILayout.Button("Mode",mySty,GUILayout.ExpandWidth(true)))//GUILayout.Button is "true" when clicked
+			if (GUILayout.Button("Mode",mySty,GUILayout.ExpandWidth(false)))//GUILayout.Button is "true" when clicked
 			{	
 				//switch
 				dispmode = 0;
 			}
-			//textAreaString = GUI.TextArea (new Rect (30, 25, 300, 30), textAreaString);
-			GUILayout.Label (textAreaString);
+			textAreaString = GUI.TextArea (new Rect (30, 25, 300, 30), textAreaString);
+			//GUILayout.Label (textAreaString);
 
 			GUILayout.EndVertical();
 
@@ -120,8 +120,8 @@ namespace KTP2
 			case 4:textAreaString = "E:"+((Vector3)eastUnit).ToString();break;
 			case 5:textAreaString = "HDG:" + hdg + "PTCH:" + ptch + "ROLL:" + roll;break;
 			case 6:textAreaString = "Normal:"+((Vector3)normvec).ToString();break;
+			case 7:textAreaString = "PRESS MODE TO RESET";break;
 			default:
-				textAreaString = "PRESS MODE TO RESET";
 				break;
 			
 			}
