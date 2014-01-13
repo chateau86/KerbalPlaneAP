@@ -15,10 +15,23 @@ namespace KTP2
 		private string textAreaString = "text area";
 		protected Rect windowPos;
 		public int dispmode=0;
+		private bool started=false;
 
 		public override void OnStart(StartState state)
 		{
-			print ("This might actually work");
+
+		}
+
+		public override void OnUpdate(){
+			if (!started) {
+				startup ();
+			}
+		}
+
+
+		public void startup(){
+			print ("CRANK IT OVER!");
+			started = true;
 			RenderingManager.AddToPostDrawQueue (3, new Callback (drawGUI));
 
 			if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
@@ -64,14 +77,18 @@ namespace KTP2
 		}
 
 		private void drawGUI()
+		//public override void OnUpdate()
 		{
-
+			if (!started) {
+				return;
+			}
 			//GUI.skin = HighLogic.Skin;
 			updateAHRS ();
 			windowPos = GUILayout.Window(1337, windowPos, WindowGUI, "Toggle", GUILayout.MinWidth(1000));	 
 		}
 
 		public void updateAHRS(){//working like a charm
+			//print ("GYRO SPININ'");
 			Vector3d headingvec = (Vector3d)vessel.transform.up;//point forward
 			Vector3d normvec = (Vector3d)vessel.transform.forward;//point down
 			Vector3d position = vessel.findWorldCenterOfMass();
