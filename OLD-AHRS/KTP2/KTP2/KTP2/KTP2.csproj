@@ -40,6 +40,9 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="KTP2-TEST.cs" />
+    <Compile Include="KTP2-AHRS.cs" />
+    <Compile Include="GUIStuff.cs" />
+    <Compile Include="KTP2-Servo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
