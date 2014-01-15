@@ -13,21 +13,36 @@ namespace KTP2
 	public class GUIStuff:KTP2
 	{
 		string textAreaString="";
+		//string strrollknob;
+		float fltrollknob;//deg
+		//string strptchknob;
+		float fltptchknob;//deg
+		bool APon;
+		bool ALTon;
+		//List <APBrain> activeap=new List<APBrain>();
+		private APBrain actroll;
+		private APBrain actptch;
 		public int dispmode=0;
-		public GUIStuff ()
+		Vessel currvessel;
+
+		public GUIStuff (Vessel thisvessel)
 		{
 
 			if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
 			{
 				windowPos = new Rect(Screen.width / 2, Screen.height / 2, 200, 50);
 			}
+			//strrollknob = fltrollknob.ToString ();
+			//strptchknob = fltptchknob.ToString ();
+			APon = ALTon = false;
+			currvessel = thisvessel;
 		}
 
 		public void updateGUI(){
-			windowPos = GUILayout.Window(1337, windowPos, WindowGUI, "Toggle", GUILayout.MinWidth(1000));
+			windowPos = GUILayout.Window(1337, windowPos, SpurrryGUI, "Spurrry C-0.05 AP", GUILayout.MinWidth(250));
 
 		}
-		private void WindowGUI(int windowID)
+		private void SpurrryGUI(int windowID)
 		{
 
 			GUIStyle mySty = new GUIStyle(GUI.skin.button); 
@@ -35,29 +50,101 @@ namespace KTP2
 			mySty.hover.textColor = mySty.active.textColor = Color.yellow;
 			mySty.onNormal.textColor = mySty.onFocused.textColor = mySty.onHover.textColor = mySty.onActive.textColor = Color.green;
 			mySty.padding = new RectOffset(8, 8, 8, 8);
+			GUILayout.BeginVertical ();
+			GUILayout.BeginHorizontal ();
+			if (GUILayout.Button ("MASTER:"+APon.ToString())) {//GUILayout.Button is "true" when clicked
+				APon = !APon;
+				if (APon) {
+					//roll default
+					print ("Turning WLV on");
+					actroll = new APBrain (APBrain.mode.RollLever,currvessel);
+					print ("WLV on");
+					//ptch switch
+					if (ALTon) {
+						actptch = new APBrain (APBrain.mode.PtchLever,currvessel);//placeholder
+					} else {
+						actptch = new APBrain (APBrain.mode.PtchLever,currvessel);
+					}
+				} else {
+					print("AP Off");
+						actptch.disconnect ();
+						actroll.disconnect ();
 
-			GUILayout.BeginVertical();
-			if (GUILayout.Button("Toggle",mySty,GUILayout.ExpandWidth(false)))//GUILayout.Button is "true" when clicked
-			{	
-				dispmode++;
+				}
+
 			}
-			if (GUILayout.Button("Mode",mySty,GUILayout.ExpandWidth(false)))//GUILayout.Button is "true" when clicked
-			{	
-				//switch
-				dispmode = 0;
+			//print ("At APButton");
+			if (GUILayout.Button ("ALT:"+ALTon.ToString())) {
+				ALTon = !ALTon;
+				if (APon) {
+					if (ALTon) {
+						//actptch = new APBrain (APBrain.mode.AltHold);
+					} else {
+						actptch.setmode (APBrain.mode.PtchLever);
+					}
+				}
+
+			}
+			//print ("At ALTButton");
+			GUILayout.EndHorizontal ();
+			//-------------------
+			GUILayout.BeginHorizontal ();
+			GUILayout.TextArea (fltrollknob.ToString());
+			//try{fltrollknob = float.Parse(strrollknob);}
+
+			if (GUILayout.Button ("<")) {//GUILayout.Button is "true" when clicked
+				fltrollknob=actroll.chgTgt (+1f);
+			}
+			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
+				fltrollknob = actroll.setTgt (0.0f);
+			}
+			if (GUILayout.Button (">")) {//GUILayout.Button is "true" when clicked
+				fltrollknob=actroll.chgTgt (-1f);
 			}
 
-			GUI.TextArea (new Rect (30, 25, 300, 30), textAreaString);
-			//GUILayout.Label (textAreaString);
 
-			GUILayout.EndVertical();
+			GUILayout.EndHorizontal ();
+			//-------------------
+			GUILayout.BeginHorizontal ();
+			GUILayout.TextArea (fltptchknob.ToString());
+			//try{fltptchknob = float.Parse(strptchknob);}
 
-			//DragWindow makes the window draggable. The Rect specifies which part of the window it can by dragged by, and is 
-			//clipped to the actual boundary of the window. You can also pass no argument at all and then the window can by
-			//dragged by any part of it. Make sure the DragWindow command is AFTER all your other GUI input stuff, or else
-			//it may "cover up" your controls and make them stop responding to the mouse.
-			GUI.DragWindow(new Rect(0, 0, 10000, 20));
+			if (GUILayout.Button ("UP")) {//GUILayout.Button is "true" when clicked
+				/*if (fltptchknob <= +90f) {
+					fltptchknob += 1;.
+				}*/
+				fltptchknob=actptch.chgTgt (+1f);
+			}
+			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
+				fltptchknob = actptch.setTgt (0f);
+			}
+			if (GUILayout.Button ("DN")) {//GUILayout.Button is "true" when clicked
+				/*if (fltptchknob >= -90f) {
+					fltptchknob -= 1;
+				}*/
+				fltptchknob=actptch.chgTgt (-1f);
+			}
 
+			/*if (actptch!=null){//&&actptch.currmode == APBrain.mode.PtchLever) {
+				actptch.setTgt (fltptchknob);
+				print ("PtchKnob:" + fltptchknob.ToString ("0.00"));
+			}*/
+			//print ("At PtchKnob");
+			GUILayout.EndHorizontal ();
+			//-------------------
+			GUILayout.EndVertical ();
+
+			this.AddTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob);
+
+			GUILayout.TextArea (textAreaString);
+
+			GUI.DragWindow();
+
+		}
+
+
+		public void AddTextAreaString(string addstr){
+			textAreaString += addstr;
 		}
 
 		public void SetTextAreaString(string newstr){

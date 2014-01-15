@@ -42,7 +42,7 @@
     <Compile Include="KTP2-TEST.cs" />
     <Compile Include="KTP2-AHRS.cs" />
     <Compile Include="GUIStuff.cs" />
-    <Compile Include="KTP2-Servo.cs" />
+    <Compile Include="KTP2-APBrain.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
