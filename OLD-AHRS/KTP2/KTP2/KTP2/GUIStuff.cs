@@ -36,6 +36,8 @@ namespace KTP2
 			//strptchknob = fltptchknob.ToString ();
 			APon = ALTon = false;
 			currvessel = thisvessel;
+			actroll = new APBrain (APBrain.mode.off, currvessel);
+			actptch = new APBrain (APBrain.mode.off, currvessel);
 		}
 
 		public void updateGUI(){
@@ -57,19 +59,24 @@ namespace KTP2
 				if (APon) {
 					//roll default
 					print ("Turning WLV on");
-					actroll = new APBrain (APBrain.mode.RollLever,currvessel);
+					//actroll = new APBrain (APBrain.mode.RollLever,currvessel);
+					actroll.setmode (APBrain.mode.RollLever);
 					print ("WLV on");
 					//ptch switch
 					if (ALTon) {
-						actptch = new APBrain (APBrain.mode.PtchLever,currvessel);//placeholder
+						//actptch = new APBrain (APBrain.mode.PtchLever,currvessel);//placeholder
 					} else {
-						actptch = new APBrain (APBrain.mode.PtchLever,currvessel);
+						//actptch = new APBrain (APBrain.mode.PtchLever,currvessel);
+					actptch.setmode (APBrain.mode.PtchLever);
 					}
 				} else {
 					print("AP Off");
-						actptch.disconnect ();
-						actroll.disconnect ();
-
+					/*actptch.disconnect ();
+					//actptch = null;
+					actroll.disconnect ();
+					actroll = null;*/
+					actroll.setmode (APBrain.mode.off);
+					actptch.setmode (APBrain.mode.off);
 				}
 
 			}
@@ -93,13 +100,13 @@ namespace KTP2
 			//try{fltrollknob = float.Parse(strrollknob);}
 
 			if (GUILayout.Button ("<")) {//GUILayout.Button is "true" when clicked
-				fltrollknob=actroll.chgTgt (+1f);
+				fltrollknob=actroll.chgTgt (-1f);
 			}
 			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
 				fltrollknob = actroll.setTgt (0.0f);
 			}
 			if (GUILayout.Button (">")) {//GUILayout.Button is "true" when clicked
-				fltrollknob=actroll.chgTgt (-1f);
+				fltrollknob=actroll.chgTgt (+1f);
 			}
 
 

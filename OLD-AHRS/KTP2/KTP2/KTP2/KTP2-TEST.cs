@@ -8,6 +8,8 @@ using UnityEngine;
 using KSP.IO;
 //using Tac;
 
+//GitHub app is fucking dumb
+
 namespace KTP2
 {
 	public class KTP2 : PartModule
