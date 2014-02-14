@@ -13,4 +13,6 @@ As of now, the part file is not included. So just compile it with your choice of
 ```
 to your choice of part and put the compiled dll in `<KSPFolder>\GameData\<YourPart>\Plugins`. 
 
-Now you aer ready to fly your plane like a *REAL* pilot. No more stomping-the-rudder-pedal to turn like MechJeb.
+Now you are ready to fly your plane like a *REAL* pilot. No more stomping-the-rudder-pedal to turn like MechJeb.
+
+
