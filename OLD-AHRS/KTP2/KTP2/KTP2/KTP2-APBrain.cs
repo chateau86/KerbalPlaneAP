@@ -122,9 +122,9 @@ namespace KTP2
 
 			getPIDconst (mode,out PIDconst);
 
-			ctrlforce = - gain*(PIDconst [0] * displ + PIDconst [1] * rate) + trimval;
+			ctrlforce = -gain * (PIDconst [0] * displ + PIDconst [1] * rate) + trimval;
 			ctrlforce= Mathf.Clamp (ctrlforce, -1, +1);
-			trimval += PIDconst [2] * ctrlforce;
+			trimval += PIDconst [2] * (ctrlforce-trimval);
 			return ctrlforce;
 
 		}
