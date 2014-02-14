@@ -11,10 +11,6 @@ As of now, the part file is not included. So just compile it with your choice of
         name = KTP2
     }
 ```
-to your choice of part and put the compiled dll in '<KSPFolder>\GameData\<YourPart>\Plugins'. 
+to your choice of part and put the compiled dll in `<KSPFolder>\GameData\<YourPart>\Plugins`. 
 
 Now you aer ready to fly your plane like a *REAL* pilot. No more stomping-the-rudder-pedal to turn like MechJeb.
-
-Thank you.
-
-Chateau86
