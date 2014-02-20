@@ -14,27 +14,30 @@ namespace KTP2
 		private Vector3d headingvec, normvec, position, rollvec, eastUnit, upUnit, northUnit, leftunit, rotrate, rolrate;
 		public float hdg, ptch, roll, hdgRate, ptchRate, rollRate;
 		private float northcomponent, eastcomponent, upcomponent, rollcomponentup, rollcomponentleft;//, northcomponentrate, eastcomponentrate, upcomponentrate, rollcomponentuprate, rollcomponentleftrate;
-		private float lasthdg, lastptch, lastroll;
-		//private ThisGoddamnVessel ThisGoddamnVessel;
-		public AHRS(Vessel ThisGoddamnVessel){
+		private float lasthdg, lastptch, lastroll, lastRadAlt, lastBaroAlt;
+		private Vessel ThisVessel;
+		public float RadAlt, BaroAlt, RadVS, BaroVS;
+		//private ThisVessel ThisVessel;
 
+		public AHRS(Vessel ThisVessel){
+			this.ThisVessel = ThisVessel;
 		}
 
-		public void updateAHRS(){//ThisGoddamnVessel ThisGoddamnVessel){//working like a charm
-			//ThisGoddamnVessel = thisThisGoddamnVessel;
-			//KTP2.ThisGoddamnVessel = vessel;
+		public void updateAHRS(){//ThisVessel ThisVessel){//working like a charm
+			//ThisVessel = thisThisVessel;
+			KTP2.ThisGoddamnVessel = ThisVessel;
 			if (KTP2.ThisGoddamnVessel == null) {print ("WAT? Nullvessel");return;}
-			//print (ThisGoddamnVessel.ToString());
-			headingvec = (Vector3d)ThisGoddamnVessel.transform.up;//point forward
-			normvec = (Vector3d)ThisGoddamnVessel.transform.forward;//point down
-			position = ThisGoddamnVessel.findWorldCenterOfMass();
+			//print (ThisVessel.ToString());
+			headingvec = (Vector3d)ThisVessel.transform.up;//point forward
+			normvec = (Vector3d)ThisVessel.transform.forward;//point down
+			position = ThisVessel.findWorldCenterOfMass();
 			rollvec = Vector3d.Cross (normvec, headingvec);//point to left
 
-			rotrate = ThisGoddamnVessel.angularVelocity;
+			rotrate = ThisVessel.angularVelocity;
 			rolrate = Vector3d.Cross (rotrate, headingvec);
 			//unit vectors in the up (normal to planet surface), east, and north (parallel to planet surface) directions
-			eastUnit = ThisGoddamnVessel.mainBody.getRFrmVel(position).normalized; //uses the rotation of the body's frame to determine "east"
-			upUnit = (position - ThisGoddamnVessel.mainBody.position).normalized;
+			eastUnit = ThisVessel.mainBody.getRFrmVel(position).normalized; //uses the rotation of the body's frame to determine "east"
+			upUnit = (position - ThisVessel.mainBody.position).normalized;
 			northUnit = Vector3d.Cross(upUnit, eastUnit); //north = up cross east
 
 			leftunit = Vector3d.Cross (headingvec, upUnit);
@@ -65,6 +68,15 @@ namespace KTP2
 			hdgRate = (hdg - lasthdg) / TimeWarp.deltaTime; 
 			ptchRate = (ptch - lastptch) / TimeWarp.deltaTime;
 			rollRate = (roll - lastroll) / TimeWarp.deltaTime;
+
+			//----------------------Now for ADC
+			lastRadAlt = RadAlt;
+			lastBaroAlt = BaroAlt;
+			RadAlt = ThisVessel.heightFromTerrain;
+			BaroAlt = (float) ThisVessel.altitude;
+
+			RadVS=(lastRadAlt-RadAlt)/TimeWarp.deltaTime; 
+			BaroVS = (lastBaroAlt - BaroAlt) / TimeWarp.deltaTime;
 
 			}
 		public string debugAHRS(int dispmode){

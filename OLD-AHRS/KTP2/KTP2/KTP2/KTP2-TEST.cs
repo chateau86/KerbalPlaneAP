@@ -15,12 +15,12 @@ namespace KTP2
 	public class KTP2 : PartModule
 	{
 		//private string textAreaString = "text area";
-		protected Rect windowPos;
-		//public int dispmode=0;
-		private bool started=false;
-		private AHRS thisAHRS;
-		private GUIStuff thisGUIStuff;
 
+		//public int dispmode=0;
+		//private bool started=false;
+		//private AHRS thisAHRS;
+		//private GUIStuff thisGUIStuff;
+		//private C005AP thisAP;// duct tape
 		public static Vessel ThisGoddamnVessel;
 
 		public enum axis
@@ -32,39 +32,35 @@ namespace KTP2
 		}
 
 
-		public override void OnStart(StartState state)
-		{
 
-		}
-
-		public override void OnUpdate(){
+		/*public KTP2(){
 			ThisGoddamnVessel = vessel;
 			if (!started) {
 				startup ();
 			}
+
 			//print ("thisAHRS.updateAHRS");
-			thisAHRS.updateAHRS ();//vessel);
-		}
+			//thisAHRS.updateAHRS ();//vessel);
+		}*/
 
 
-		public void startup(){
+		/*public void startup(){
 			print ("CRANK IT OVER!");
 			ThisGoddamnVessel = vessel;
+			if(ThisGoddamnVessel==null){
+				print("starter fault");
+			}
 			started = true;
 			//RenderingManager.AddToPostDrawQueue (3, new Callback (drawGUI));
-			thisGUIStuff = new GUIStuff (vessel);
-			thisAHRS = new AHRS (vessel);
-		}
+			//thisAP = new C005AP;// (ThisGoddamnVessel);
+			//thisGUIStuff = (GUIStuff)thisAP;
+			//thisAHRS = new AHRS (vessel);
+	}*/
 
 
 		private void OnGUI()
 		{
-			if (!started) {
-				return;
-			}
-
-			thisGUIStuff.updateGUI ();
-			thisGUIStuff.SetTextAreaString (thisAHRS.debugAHRS (5));
+			ThisGoddamnVessel = vessel;
 		}
 
 	}

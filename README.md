@@ -6,10 +6,10 @@ Currently, only the roll and pitch hold function are implemented. However, This 
 
 As of now, the part file is not included. So just compile it with your choice of C# compiler and then add
 ```
-    MODULE
-    {
-        name = KTP2
-    }
+	MODULE
+	{
+		name = C005AP
+	}
 ```
 to your choice of part and put the compiled dll in `<KSPFolder>\GameData\<YourPart>\Plugins`. 
 

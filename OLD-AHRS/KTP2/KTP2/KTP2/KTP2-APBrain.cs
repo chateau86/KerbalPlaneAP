@@ -21,30 +21,21 @@ namespace KTP2
 
 		float trimval;
 		float tgt;
-		float gain=2f;
+		float gain=0.5f;
+		float tgtAxisHold;
 		public mode currmode;
 		public axis curraxis;
 		//APServo thisServo;
 		AHRS thisAHRS;
 		private FlightInputCallback currfconcallback;
 
-		private void getPIDconst(APBrain.mode mode, out float[] PIDconst){
-			switch(mode)
-			{
-			case mode.off		:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
-				//Pitch---------------------------------------------------
-			case mode.AltHold	:PIDconst=new float[]{	1f,	 	0.2f, 	0.05f};break;
-			case mode.PtchLever	:PIDconst=new float[]{	1.5f,		0.5f, 	0.1f};break;
-				//Roll---------------------------------------------------
-			case mode.RollLever	:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
-
-			default: PIDconst=new float[]{1f, 0.2f, 0.05f};	break;
-			}
-		}
-
 		public APBrain (mode newmode, Vessel vessel)
 		{
-			print ("AP ON");
+			if (vessel == null) {
+				print ("AP INIT NULL VESSEL");
+			}
+
+			print ("AP INIT AS "+ newmode);
 			//new all axis servo; only put correct force in output flightctrlstate
 			currmode = newmode;
 			if (currmode == mode.RollLever) {
@@ -57,6 +48,20 @@ namespace KTP2
 
 			currfconcallback= new FlightInputCallback(fly);
 			vessel.OnFlyByWire += currfconcallback;
+		}
+
+		private void getPIDconst(APBrain.mode mode, out float[] PIDconst){
+			switch(mode)//:{kForce, kDamp, kTrim}
+			{
+			case mode.off		:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
+				//Pitch---------------------------------------------------
+			case mode.AltHold	:PIDconst=new float[]{	10f,		1f, 	0.5f};break;
+			case mode.PtchLever	:PIDconst=new float[]{	1.5f,		0.5f, 	0.1f};break;
+				//Roll---------------------------------------------------
+			case mode.RollLever	:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
+
+			default: PIDconst=new float[]{1f, 0.2f, 0.05f};	break;
+			}
 		}
 
 		public void fly(FlightCtrlState oldstate)
@@ -75,14 +80,20 @@ namespace KTP2
 			if (currmode == mode.PtchLever) {
 				ctrlforce.pitch = PIDctrl (tgt, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
 			}
+
+			if (currmode == mode.AltHold) {
+				tgtAxisHold = PIDctrl (tgt, thisAHRS.BaroAlt, thisAHRS.BaroVS, currmode);
+				ctrlforce.pitch = PIDctrl ( tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
+				print ("AltHold at:"+tgt.ToString("0.00")+" displ:"+(thisAHRS.BaroAlt-tgt).ToString("0.00")+" TargetPtc:"+tgtAxisHold.ToString("0.00")+" Force:"+ctrlforce.pitch.ToString("0.00"));
+			}
 			//---TODO ALT
-			print ("RECALCULATING"+curraxis
+			/*print ("RECALCULATING"+curraxis
 				+"FR"+ctrlforce.roll.ToString("0.00")
 				+"Dsp:"+(thisAHRS.roll-tgt).ToString("0.00")
 				+"Roll:"+thisAHRS.roll.ToString("0.00")
 				+"FP"+ctrlforce.pitch.ToString("0.00")
 				+"Dsp:"+(thisAHRS.ptch-tgt).ToString("0.00")
-				+"Ptch:"+thisAHRS.ptch.ToString("0.00"));
+				+"Ptch:"+thisAHRS.ptch.ToString("0.00"));*/
 			oldstate.roll += ctrlforce.roll;
 			oldstate.pitch += ctrlforce.pitch;
 			oldstate.yaw += ctrlforce.yaw;
@@ -103,6 +114,9 @@ namespace KTP2
 
 		public void setmode(APBrain.mode newmode){
 			currmode = newmode;
+			if (currmode == APBrain.mode.AltHold && tgt == 0) {
+				tgt = thisAHRS.BaroAlt;
+			}
 		}
 
 		public void setgain(float newgain){
