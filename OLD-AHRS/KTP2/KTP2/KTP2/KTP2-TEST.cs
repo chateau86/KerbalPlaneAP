@@ -8,19 +8,13 @@ using UnityEngine;
 using KSP.IO;
 //using Tac;
 
-//GitHub app is fucking dumb
+//Why the hell do I still have this class? it's more useless than Jeremy Clarkson withOUT a hammer.
 
 namespace KTP2
 {
 	public class KTP2 : PartModule
 	{
-		//private string textAreaString = "text area";
 
-		//public int dispmode=0;
-		//private bool started=false;
-		//private AHRS thisAHRS;
-		//private GUIStuff thisGUIStuff;
-		//private C005AP thisAP;// duct tape
 		public static Vessel ThisGoddamnVessel;
 
 		public enum axis
@@ -30,32 +24,6 @@ namespace KTP2
 			yaw,
 			mainThrottle
 		}
-
-
-
-		/*public KTP2(){
-			ThisGoddamnVessel = vessel;
-			if (!started) {
-				startup ();
-			}
-
-			//print ("thisAHRS.updateAHRS");
-			//thisAHRS.updateAHRS ();//vessel);
-		}*/
-
-
-		/*public void startup(){
-			print ("CRANK IT OVER!");
-			ThisGoddamnVessel = vessel;
-			if(ThisGoddamnVessel==null){
-				print("starter fault");
-			}
-			started = true;
-			//RenderingManager.AddToPostDrawQueue (3, new Callback (drawGUI));
-			//thisAP = new C005AP;// (ThisGoddamnVessel);
-			//thisGUIStuff = (GUIStuff)thisAP;
-			//thisAHRS = new AHRS (vessel);
-	}*/
 
 
 		private void OnGUI()

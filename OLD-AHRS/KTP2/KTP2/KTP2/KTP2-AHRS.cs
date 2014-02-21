@@ -72,13 +72,15 @@ namespace KTP2
 			//----------------------Now for ADC
 			lastRadAlt = RadAlt;
 			lastBaroAlt = BaroAlt;
+
 			RadAlt = ThisGoddamnVessel.GetHeightFromTerrain ();
-			//BaroAlt = ThisVessel.GetHeightFromSurface ();
+			BaroAlt = ThisVessel.GetHeightFromSurface ();
 			//BaroAlt=(float)ThisGoddamnVessel.mainBody.GetAltitude (ThisGoddamnVessel.CoM);
 			//CoM = this.vessel.findWolrdCenterOfMass();
-			BaroAlt =(float) FlightGlobals.getAltitudeAtPos(this.vessel.findWorldCenterOfMass());
+			//BaroAlt =(float) FlightGlobals.getAltitudeAtPos(this.vessel.findWorldCenterOfMass());
 			RadVS=(lastRadAlt-RadAlt)/TimeWarp.deltaTime; 
 			BaroVS = (lastBaroAlt - BaroAlt) / TimeWarp.deltaTime;
+			BaroVS = (float)ThisGoddamnVessel.verticalSpeed;
 
 			}
 		public string debugAHRS(int dispmode){

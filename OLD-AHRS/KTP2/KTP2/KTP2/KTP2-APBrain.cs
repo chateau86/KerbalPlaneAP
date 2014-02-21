@@ -62,8 +62,8 @@ namespace KTP2
 			case mode.AltHold	:PIDconst=new float[]{	1f,		0.1f,		1f,			1f, 		0.5f,	0.5f};break;
 			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
 				//Roll---------------------------------------------------
-			case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
-
+				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
+			case mode.RollLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
 			default: 			 PIDconst=new float[]{	1f,		1f, 		1f, 		0.2f, 		0.05f,	0.5f};	break;
 			}
 		}
