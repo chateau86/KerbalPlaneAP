@@ -112,6 +112,7 @@ namespace KTP2
 						actptch.setTgt (GuiAHRS.BaroAlt);
 					} else {
 						actptch.setmode (APBrain.mode.PtchLever);
+						actptch.setTgt (fltptchknob);
 					}
 				}
 
@@ -165,7 +166,7 @@ namespace KTP2
 			//-------------------
 			GUILayout.EndVertical ();
 
-			this.SetTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob);
+			this.SetTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob+" BARO:"+GuiAHRS.BaroAlt.ToString("0.00")+" Rad:"+GuiAHRS.RadAlt.ToString("0.00")+" VS:"+GuiAHRS.BaroVS.ToString("0.00"));
 
 			GUILayout.TextArea (textAreaString);
 
