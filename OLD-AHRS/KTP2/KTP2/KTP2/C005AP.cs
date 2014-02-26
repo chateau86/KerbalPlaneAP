@@ -51,21 +51,23 @@ namespace KTP2
 			GuiAHRS = new AHRS (localcurrentvessel);
 		}
 
+		public override void GuiCallbackWrapper ()
+		{
+			if (isDisp) {
+				windowPos = GUILayout.Window (1337, windowPos, APGUI, "Spurrry C-0.05 AP", GUILayout.MinWidth (250));
+				print ("GuiCallbackWrapper at C005AP");
+			}
+		}
+
 		public override void APGUI(int windowID)
 		{
+
 			//localcurrentvessel = ThisGoddamnVessel;
 			if (localcurrentvessel == null) {
 				print ("C005AP Null Vessel");
 				localcurrentvessel = ThisGoddamnVessel;
 			}
-
-			/*if (actroll == null) {
-				actroll = new APBrain (APBrain.mode.off, localcurrentvessel);
-			}
-			if (actptch == null) {
-				actptch = new APBrain (APBrain.mode.off, localcurrentvessel);
-			}*/
-			//print ("C005AP APGUI");
+			//--------------------------------------------------------------------------------------------------------------------------------------------------------
 			if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
 			{
 				windowPos = new Rect(Screen.width / 2, Screen.height / 2, 200, 50);

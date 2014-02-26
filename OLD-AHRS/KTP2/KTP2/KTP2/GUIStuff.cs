@@ -35,12 +35,6 @@ namespace KTP2
 
 		private void OnGUI(){
 
-
-			if (isDisp) {
-				windowPos = GUILayout.Window (1337, windowPos, APGUI, "Spurrry C-0.05 AP", GUILayout.MinWidth (250));
-				//print ("OnGUI at GUIStuff");
-			}
-
 		}
 
 		public override void OnUpdate(){
@@ -48,10 +42,14 @@ namespace KTP2
 			if (APInitd == false) {
 				APInit (vessel);
 				APInitd = true;
+				RenderingManager.AddToPostDrawQueue (3, new Callback (GuiCallbackWrapper));
 			}
 		}
 
 		public abstract void APGUI (int windowID);
+		public abstract void GuiCallbackWrapper ();
+
+		//public abstract void APGUI ();
 		public abstract void APInit (Vessel currentvessel);
 
 
