@@ -21,30 +21,25 @@ namespace KTP2
 
 		float trimval;
 		float tgt;
-		float gain=2f;
+		float gain=0.5f;
+		float PtchUpLim=45f;
+		float PtchDownLim = -30f;
+		float ctrlforce,lastCtrlforce;
+
+		float tgtAxisHold;
 		public mode currmode;
 		public axis curraxis;
 		//APServo thisServo;
 		AHRS thisAHRS;
 		private FlightInputCallback currfconcallback;
 
-		private void getPIDconst(APBrain.mode mode, out float[] PIDconst){
-			switch(mode)
-			{
-			case mode.off		:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
-				//Pitch---------------------------------------------------
-			case mode.AltHold	:PIDconst=new float[]{	1f,	 	0.2f, 	0.05f};break;
-			case mode.PtchLever	:PIDconst=new float[]{	1.5f,		0.5f, 	0.1f};break;
-				//Roll---------------------------------------------------
-			case mode.RollLever	:PIDconst=new float[]{	1f,		0.2f, 	0.05f};break;
-
-			default: PIDconst=new float[]{1f, 0.2f, 0.05f};	break;
-			}
-		}
-
 		public APBrain (mode newmode, Vessel vessel)
 		{
-			print ("AP ON");
+			if (vessel == null) {
+				print ("AP INIT NULL VESSEL");
+			}
+
+			print ("AP INIT AS "+ newmode);
 			//new all axis servo; only put correct force in output flightctrlstate
 			currmode = newmode;
 			if (currmode == mode.RollLever) {
@@ -57,6 +52,20 @@ namespace KTP2
 
 			currfconcallback= new FlightInputCallback(fly);
 			vessel.OnFlyByWire += currfconcallback;
+		}
+
+		private void getPIDconst(APBrain.mode mode, out float[] PIDconst){
+			switch(mode)//:{gain, kCube, kForce, kDamp, kTrim, CtrlRate/sec}
+			{
+			case mode.off		:PIDconst=new float[]{	1f,		1f,			1f,			0.2f, 		0.05f,	0.5f};break;
+				//Pitch---------------------------------------------------
+			case mode.AltHold	:PIDconst=new float[]{	1f,		0.1f,		1f,			1f, 		0.5f,	0.5f};break;
+			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
+				//Roll---------------------------------------------------
+				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
+			case mode.RollLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
+			default: 			 PIDconst=new float[]{	1f,		1f, 		1f, 		0.2f, 		0.05f,	0.5f};	break;
+			}
 		}
 
 		public void fly(FlightCtrlState oldstate)
@@ -75,14 +84,21 @@ namespace KTP2
 			if (currmode == mode.PtchLever) {
 				ctrlforce.pitch = PIDctrl (tgt, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
 			}
+
+			if (currmode == mode.AltHold) {
+				tgtAxisHold = PIDctrl (tgt, thisAHRS.BaroAlt, thisAHRS.BaroVS, currmode);
+				tgtAxisHold = Mathf.Clamp (tgt, PtchDownLim, PtchUpLim);
+				ctrlforce.pitch = PIDctrl ( tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
+				print ("AltHold at:"+tgt.ToString("0.00")+" displ:"+(thisAHRS.BaroAlt-tgt).ToString("0.00")+" TargetPtc:"+tgtAxisHold.ToString("0.00")+" Force:"+ctrlforce.pitch.ToString("0.00"));
+			}
 			//---TODO ALT
-			print ("RECALCULATING"+curraxis
+			/*print ("RECALCULATING"+curraxis
 				+"FR"+ctrlforce.roll.ToString("0.00")
 				+"Dsp:"+(thisAHRS.roll-tgt).ToString("0.00")
 				+"Roll:"+thisAHRS.roll.ToString("0.00")
 				+"FP"+ctrlforce.pitch.ToString("0.00")
 				+"Dsp:"+(thisAHRS.ptch-tgt).ToString("0.00")
-				+"Ptch:"+thisAHRS.ptch.ToString("0.00"));
+				+"Ptch:"+thisAHRS.ptch.ToString("0.00"));*/
 			oldstate.roll += ctrlforce.roll;
 			oldstate.pitch += ctrlforce.pitch;
 			oldstate.yaw += ctrlforce.yaw;
@@ -103,6 +119,9 @@ namespace KTP2
 
 		public void setmode(APBrain.mode newmode){
 			currmode = newmode;
+			if (currmode == APBrain.mode.AltHold && tgt == 0) {
+				tgt = thisAHRS.BaroAlt;
+			}
 		}
 
 		public void setgain(float newgain){
@@ -117,14 +136,22 @@ namespace KTP2
 		}
 
 		private float PIDctrl(float tgt, float value, float rate, mode mode){
-			float ctrlforce;
+			//float ctrlforce;
 			float displ = value - tgt;
-
+			lastCtrlforce = ctrlforce;
 			getPIDconst (mode,out PIDconst);
 
-			ctrlforce = -gain * (PIDconst [0] * displ + PIDconst [1] * rate) + trimval;
-			ctrlforce= Mathf.Clamp (ctrlforce, -1, +1);
-			trimval += PIDconst [2] * (ctrlforce-trimval);
+			ctrlforce = -PIDconst[0] * ( PIDconst[1]*(displ*displ*displ)+ PIDconst [2] * displ + PIDconst [3] * rate) + trimval;
+			//ctrlforce= Mathf.Clamp (ctrlforce, -1, +1);
+			if (Mathf.Abs (ctrlforce) > Mathf.Abs (lastCtrlforce) && Mathf.Abs (ctrlforce) > 0.05f) {
+				ctrlforce = Mathf.Clamp (ctrlforce, (lastCtrlforce - (PIDconst [4] * TimeWarp.deltaTime)), (lastCtrlforce + (PIDconst [4] * TimeWarp.deltaTime)));
+			} else {
+				ctrlforce = Mathf.Clamp (ctrlforce, (lastCtrlforce - (PIDconst [4] * TimeWarp.deltaTime*2)), (lastCtrlforce + (PIDconst [4] * TimeWarp.deltaTime*2)));
+			}
+			trimval += PIDconst [3] * (ctrlforce-trimval);
+
+
+
 			return ctrlforce;
 
 		}

@@ -43,6 +43,7 @@
     <Compile Include="KTP2-AHRS.cs" />
     <Compile Include="GUIStuff.cs" />
     <Compile Include="KTP2-APBrain.cs" />
+    <Compile Include="C005AP.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
