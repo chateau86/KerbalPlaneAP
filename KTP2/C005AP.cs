@@ -42,6 +42,8 @@ namespace KTP2
 			localcurrentvessel=ThisGoddamnVessel;
 			if (localcurrentvessel == null) {
 				print ("C005AP INIT NULL VESSEL");
+			} else {
+				print (localcurrentvessel.ToString ());
 			}
 
 			APon = ALTon = false;
@@ -55,7 +57,7 @@ namespace KTP2
 		{
 			if (isDisp) {
 				windowPos = GUILayout.Window (1337, windowPos, APGUI, "Spurrry C-0.05 AP", GUILayout.MinWidth (250));
-				print ("GuiCallbackWrapper at C005AP");
+				//print ("GuiCallbackWrapper at C005AP");
 			}
 		}
 
@@ -72,6 +74,7 @@ namespace KTP2
 			{
 				windowPos = new Rect(Screen.width / 2, Screen.height / 2, 200, 50);
 			}
+			GuiAHRS.updateAHRS ();
 			GUIStyle mySty = new GUIStyle(GUI.skin.button); 
 			mySty.normal.textColor = mySty.focused.textColor = Color.white;
 			mySty.hover.textColor = mySty.active.textColor = Color.yellow;
@@ -168,7 +171,7 @@ namespace KTP2
 			//-------------------
 			GUILayout.EndVertical ();
 
-			this.SetTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob+" BARO:"+GuiAHRS.BaroAlt.ToString("0.00")+" Rad:"+GuiAHRS.RadAlt.ToString("0.00")+" VS:"+GuiAHRS.BaroVS.ToString("0.00"));
+			this.SetTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob+" BARO:"+GuiAHRS.BaroAlt+" Rad:"+GuiAHRS.RadAlt+" VS:"+GuiAHRS.BaroVS);
 
 			GUILayout.TextArea (textAreaString);
 

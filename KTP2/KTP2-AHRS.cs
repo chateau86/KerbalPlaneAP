@@ -16,7 +16,7 @@ namespace KTP2
 		private float northcomponent, eastcomponent, upcomponent, rollcomponentup, rollcomponentleft;//, northcomponentrate, eastcomponentrate, upcomponentrate, rollcomponentuprate, rollcomponentleftrate;
 		private float lasthdg, lastptch, lastroll, lastRadAlt, lastBaroAlt;
 		private Vessel ThisVessel;
-		public float RadAlt, BaroAlt, RadVS, BaroVS;
+		public float RadAlt, BaroAlt, TerrAlt, RadVS, BaroVS;
 		//private ThisVessel ThisVessel;
 
 		public AHRS(Vessel ThisVessel){
@@ -73,14 +73,27 @@ namespace KTP2
 			lastRadAlt = RadAlt;
 			lastBaroAlt = BaroAlt;
 
+			/*
 			RadAlt = ThisGoddamnVessel.GetHeightFromTerrain ();
 			BaroAlt = ThisVessel.GetHeightFromSurface ();
 			//BaroAlt=(float)ThisGoddamnVessel.mainBody.GetAltitude (ThisGoddamnVessel.CoM);
 			//CoM = this.vessel.findWolrdCenterOfMass();
 			//BaroAlt =(float) FlightGlobals.getAltitudeAtPos(this.vessel.findWorldCenterOfMass());
+
+			BaroVS = (float)ThisGoddamnVessel.verticalSpeed;
+			*/
+			print ("old subsystem ok");
+
+			//Thanks, stupid_chris over at forum.kerbalspaceprogram.com
+			BaroAlt = (float)FlightGlobals.getAltitudeAtPos (position);
+			print ("baro ok");
+			TerrAlt = (float)ThisVessel.pqsAltitude;
+			print ("Terr ok");
+			if (ThisVessel.mainBody.ocean && TerrAlt < 0) { TerrAlt = 0; }
+			RadAlt = BaroAlt - TerrAlt;
+
 			RadVS=(lastRadAlt-RadAlt)/TimeWarp.deltaTime; 
 			BaroVS = (lastBaroAlt - BaroAlt) / TimeWarp.deltaTime;
-			BaroVS = (float)ThisGoddamnVessel.verticalSpeed;
 
 			}
 		public string debugAHRS(int dispmode){

@@ -18,11 +18,11 @@ namespace KTP2
 			AltHold
 		}
 		public float[] PIDconst; //= { 1f, 0.2f, 0.05f }; // {0roll, 1pitch, 2yaw}:{{kForce, kDamp, kTrim}}
-
+		public float[] NPIDconst;
 		float trimval;
 		float tgt;
 		float gain=0.5f;
-		float PtchUpLim=45f;
+		float PtchUpLim=+45f;
 		float PtchDownLim = -30f;
 		float ctrlforce,lastCtrlforce;
 
@@ -59,7 +59,7 @@ namespace KTP2
 			{
 			case mode.off		:PIDconst=new float[]{	1f,		1f,			1f,			0.2f, 		0.05f,	0.5f};break;
 				//Pitch---------------------------------------------------
-			case mode.AltHold	:PIDconst=new float[]{	1f,		0.1f,		1f,			1f, 		0.5f,	0.5f};break;
+			case mode.AltHold	:PIDconst=new float[]{	1f,		0f,			0.1f,		1f, 		0.1f,	0.1f};break;
 			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
 				//Roll---------------------------------------------------
 				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
@@ -67,6 +67,20 @@ namespace KTP2
 			default: 			 PIDconst=new float[]{	1f,		1f, 		1f, 		0.2f, 		0.05f,	0.5f};	break;
 			}
 		}
+		private void getNPIDconst(APBrain.mode mode, out float[] NPIDconst){
+			switch(mode)//:{gain, kCube, kForce, min, max}
+			{
+			case mode.off		:NPIDconst=new float[]{	0f,		0f,		0f,		0f, 	0f	};break;
+				//Pitch---------------------------------------------------
+			case mode.AltHold	:NPIDconst=new float[]{	1f,		0f,		0.1f,		-30f, 	+45f	};break;
+			case mode.PtchLever	:NPIDconst=new float[]{	0f,		0f,		0f,		0f, 	0f	};break;
+				//Roll---------------------------------------------------
+				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
+			case mode.RollLever	:NPIDconst=new float[]{	0f,		0f,		0f,		0f, 	0f	};break;
+			default: 			 NPIDconst=new float[]{	0f,		0f, 	0f, 	0f, 	0f	};	break;
+			}
+		}
+
 
 		public void fly(FlightCtrlState oldstate)
 		{
@@ -80,15 +94,16 @@ namespace KTP2
 			//print ("cheestick!");
 			if (currmode == mode.RollLever) {
 				ctrlforce.roll = PIDctrl (tgt, thisAHRS.roll, thisAHRS.rollRate,currmode);
-			}
+			}else
 			if (currmode == mode.PtchLever) {
 				ctrlforce.pitch = PIDctrl (tgt, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
-			}
+				}else
 
 			if (currmode == mode.AltHold) {
-				tgtAxisHold = PIDctrl (tgt, thisAHRS.BaroAlt, thisAHRS.BaroVS, currmode);
-				tgtAxisHold = Mathf.Clamp (tgt, PtchDownLim, PtchUpLim);
-				ctrlforce.pitch = PIDctrl ( tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
+				/*tgtAxisHold = PIDctrl (tgt, thisAHRS.BaroAlt, thisAHRS.BaroVS, currmode);
+				tgtAxisHold = Mathf.Clamp (tgtAxisHold, PtchDownLim, PtchUpLim);*/
+				tgtAxisHold = NPIDctrl (tgt, thisAHRS.BaroAlt, currmode);
+				ctrlforce.pitch = PIDctrl ( tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate,mode.PtchLever);
 				print ("AltHold at:"+tgt.ToString("0.00")+" displ:"+(thisAHRS.BaroAlt-tgt).ToString("0.00")+" TargetPtc:"+tgtAxisHold.ToString("0.00")+" Force:"+ctrlforce.pitch.ToString("0.00"));
 			}
 			//---TODO ALT
@@ -154,6 +169,15 @@ namespace KTP2
 
 			return ctrlforce;
 
+		}
+
+		private float NPIDctrl(float tgt, float value, mode mode){// for constant force-displacement curve
+			float displ = value - tgt;
+			getNPIDconst (mode, out NPIDconst);
+			tgtAxisHold = -NPIDconst [0] * (NPIDconst [1] * (displ * displ * displ) + NPIDconst [2] * displ);
+
+			tgtAxisHold = Mathf.Clamp (tgtAxisHold, NPIDconst [3], NPIDconst [4]);
+			return tgtAxisHold;
 		}
 
 
