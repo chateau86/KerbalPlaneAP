@@ -16,7 +16,10 @@ namespace KTP2
 		private float northcomponent, eastcomponent, upcomponent, rollcomponentup, rollcomponentleft;//, northcomponentrate, eastcomponentrate, upcomponentrate, rollcomponentuprate, rollcomponentleftrate;
 		private float lasthdg, lastptch, lastroll, lastRadAlt, lastBaroAlt;
 		private Vessel ThisVessel;
-		public float RadAlt, BaroAlt, TerrAlt, RadVS, BaroVS;
+		public float RadAlt, BaroAlt, TerrAlt, RadVS, BaroVS, density, reldensity;
+
+		private Vector3d spdvec, slipvec;
+		public float Tas, sideslip, aoa;
 		//private ThisVessel ThisVessel;
 
 		public AHRS(Vessel ThisVessel){
@@ -32,6 +35,7 @@ namespace KTP2
 			normvec = (Vector3d)ThisVessel.transform.forward;//point down
 			position = ThisVessel.findWorldCenterOfMass();
 			rollvec = Vector3d.Cross (normvec, headingvec);//point to left
+			spdvec = (Vector3d)ThisVessel.GetSrfVelocity ();
 
 			rotrate = ThisVessel.angularVelocity;
 			rolrate = Vector3d.Cross (rotrate, headingvec);
@@ -47,6 +51,17 @@ namespace KTP2
 
 			rollcomponentup = (float)Vector3d.Dot (rollvec, upUnit);
 			rollcomponentleft = (float)Vector3d.Dot (rollvec, leftunit);
+
+			Tas = (float) Vector3d.Dot (spdvec, Vector3d.Normalize (headingvec));
+
+			//density=(float)FlightGlobals.getAtmDensity(FlightGlobals.getStaticPressure(position,ThisGoddamnVessel.));
+			//density = (float)FlightGlobals.getStaticPressure ();
+			density = (float)ThisGoddamnVessel.atmDensity;
+			reldensity = density / 1.013f;
+
+			slipvec = Vector3d.Normalize (spdvec) - headingvec;
+			sideslip=(float)( (180/Math.PI)*Math.Asin(Vector3d.Dot(slipvec,rollvec)));
+			aoa=(float)( (180/Math.PI)*Math.Asin(Vector3d.Dot(slipvec,normvec)));
 			//--------------------------------------------------------------------
 			/*northcomponentrate = (float)Vector3d.Dot (rotrate, northUnit);
 			eastcomponentrate = (float)Vector3d.Dot (rotrate, eastUnit);
@@ -54,47 +69,34 @@ namespace KTP2
 
 			rollcomponentuprate = (float)Vector3d.Dot (rolrate, upUnit);
 			rollcomponentleftrate = (float)Vector3d.Dot (rolrate, leftunit);*/
-			lasthdg = hdg;
-			lastptch = ptch;
-			lastroll = roll;
-
+			if (TimeWarp.deltaTime > 0.0001f) {
+				lasthdg = hdg;
+				lastptch = ptch;
+				lastroll = roll;
+				lastRadAlt = RadAlt;
+				lastBaroAlt = BaroAlt;
+			}
+			//---------------------------------------------------------------------------------------------------------------
 			hdg = (float)(Math.Atan2(eastcomponent,northcomponent)*(180/Math.PI));// atan return rad!
 			ptch = (float)(Math.Atan2(upcomponent, Math.Sqrt (1 - upcomponent * upcomponent))*(180/Math.PI));
 			roll = (float)(Math.Atan2(rollcomponentup,rollcomponentleft)*(180/Math.PI));// atan return rad!                                             
 
-			/*hdgRate = (float)(Vector3d.Dot (rotrate, upUnit));
-			ptchRate=(float)(Vector3d.Dot(rotrate, leftunit));
-			rollRate = (float)(Vector3d.Dot (rotrate, headingvec));*/
-			hdgRate = (hdg - lasthdg) / TimeWarp.deltaTime; 
-			ptchRate = (ptch - lastptch) / TimeWarp.deltaTime;
-			rollRate = (roll - lastroll) / TimeWarp.deltaTime;
-
-			//----------------------Now for ADC
-			lastRadAlt = RadAlt;
-			lastBaroAlt = BaroAlt;
-
-			/*
-			RadAlt = ThisGoddamnVessel.GetHeightFromTerrain ();
-			BaroAlt = ThisVessel.GetHeightFromSurface ();
-			//BaroAlt=(float)ThisGoddamnVessel.mainBody.GetAltitude (ThisGoddamnVessel.CoM);
-			//CoM = this.vessel.findWolrdCenterOfMass();
-			//BaroAlt =(float) FlightGlobals.getAltitudeAtPos(this.vessel.findWorldCenterOfMass());
-
-			BaroVS = (float)ThisGoddamnVessel.verticalSpeed;
-			*/
-			print ("old subsystem ok");
-
 			//Thanks, stupid_chris over at forum.kerbalspaceprogram.com
 			BaroAlt = (float)FlightGlobals.getAltitudeAtPos (position);
-			print ("baro ok");
 			TerrAlt = (float)ThisVessel.pqsAltitude;
-			print ("Terr ok");
 			if (ThisVessel.mainBody.ocean && TerrAlt < 0) { TerrAlt = 0; }
 			RadAlt = BaroAlt - TerrAlt;
 
-			RadVS=(lastRadAlt-RadAlt)/TimeWarp.deltaTime; 
-			BaroVS = (lastBaroAlt - BaroAlt) / TimeWarp.deltaTime;
+			//---------------------------------------------------------------------------------------------------------------
+			if (TimeWarp.deltaTime > 0.0001f) {
+				RadVS = (RadAlt - lastRadAlt) / TimeWarp.deltaTime; 
+				BaroVS = (BaroAlt - lastBaroAlt) / TimeWarp.deltaTime;
+				hdgRate = (hdg - lasthdg) / TimeWarp.deltaTime; 
+				ptchRate = (ptch - lastptch) / TimeWarp.deltaTime;
+				rollRate = (roll - lastroll) / TimeWarp.deltaTime;
+			}
 
+			//print ("DeltaB : " + (BaroAlt - lastBaroAlt).ToString ("F2") + " DeltaT : " + TimeWarp.deltaTime + "BVS : " + BaroVS);
 			}
 		public string debugAHRS(int dispmode){
 			string textAreaString;

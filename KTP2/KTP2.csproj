@@ -44,6 +44,7 @@
     <Compile Include="GUIStuff.cs" />
     <Compile Include="KTP2-APBrain.cs" />
     <Compile Include="C005AP.cs" />
+    <Compile Include="KrAP140.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

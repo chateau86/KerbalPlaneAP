@@ -14,20 +14,29 @@ namespace KTP2
 		public enum mode {
 			off = 0 ,
 			RollLever,
+			HDGHold,
+
 			PtchLever,
-			AltHold
+			AltHold,
+			AltSel,
+			VSHold,
+
+			SpdHold
 		}
 		public float[] PIDconst; //= { 1f, 0.2f, 0.05f }; // {0roll, 1pitch, 2yaw}:{{kForce, kDamp, kTrim}}
 		public float[] NPIDconst;
 		float trimval;
 		float tgt;
+		float tgtarm;
 		float gain=0.5f;
-		float PtchUpLim=+45f;
-		float PtchDownLim = -30f;
+		//float PtchUpLim=+45f;
+		//float PtchDownLim = -30f;
 		float ctrlforce,lastCtrlforce;
 
 		float tgtAxisHold;
+		float tgtAxisTrim;
 		public mode currmode;
+		public mode armmode;
 		public axis curraxis;
 		//APServo thisServo;
 		AHRS thisAHRS;
@@ -41,13 +50,18 @@ namespace KTP2
 
 			print ("AP INIT AS "+ newmode);
 			//new all axis servo; only put correct force in output flightctrlstate
+			armmode = mode.off;
 			currmode = newmode;
 			if (currmode == mode.RollLever) {
 				curraxis = axis.roll;
 			}
-			if (currmode == mode.PtchLever || currmode == mode.AltHold) {
+			if (currmode == mode.PtchLever || currmode == mode.AltHold || currmode==mode.VSHold||currmode==mode.AltSel) {
 				curraxis = axis.pitch;
 			}
+			if (currmode == mode.SpdHold) {
+				curraxis = axis.mainThrottle;
+			}
+
 			thisAHRS = new AHRS (vessel);
 
 			currfconcallback= new FlightInputCallback(fly);
@@ -93,30 +107,20 @@ namespace KTP2
 			thisAHRS.updateAHRS ();//vessel);
 			//print ("cheestick!");
 			if (currmode == mode.RollLever) {
-				ctrlforce.roll = PIDctrl (tgt, thisAHRS.roll, thisAHRS.rollRate,currmode);
-			}else
-			if (currmode == mode.PtchLever) {
-				ctrlforce.pitch = PIDctrl (tgt, thisAHRS.ptch, thisAHRS.ptchRate,currmode);
-				}else
-
-			if (currmode == mode.AltHold) {
-				/*tgtAxisHold = PIDctrl (tgt, thisAHRS.BaroAlt, thisAHRS.BaroVS, currmode);
-				tgtAxisHold = Mathf.Clamp (tgtAxisHold, PtchDownLim, PtchUpLim);*/
-				tgtAxisHold = NPIDctrl (tgt, thisAHRS.BaroAlt, currmode);
-				ctrlforce.pitch = PIDctrl ( tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate,mode.PtchLever);
-				print ("AltHold at:"+tgt.ToString("0.00")+" displ:"+(thisAHRS.BaroAlt-tgt).ToString("0.00")+" TargetPtc:"+tgtAxisHold.ToString("0.00")+" Force:"+ctrlforce.pitch.ToString("0.00"));
+				ctrlforce.roll = PIDctrl (tgt, thisAHRS.roll, thisAHRS.rollRate, currmode);
+			} else if (currmode == mode.PtchLever) {
+				ctrlforce.pitch = PIDctrl (tgt, thisAHRS.ptch, thisAHRS.ptchRate, currmode);
+			} else if (currmode == mode.AltHold) {//Should be replaced with VS based hold
+				tgtAxisHold = NPIDctrl (tgt, tgtAxisTrim, thisAHRS.BaroAlt, currmode);
+				ctrlforce.pitch = PIDctrl (tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate, mode.PtchLever);
+			} else if (currmode == mode.SpdHold) {
+				//TODO
 			}
-			//---TODO ALT
-			/*print ("RECALCULATING"+curraxis
-				+"FR"+ctrlforce.roll.ToString("0.00")
-				+"Dsp:"+(thisAHRS.roll-tgt).ToString("0.00")
-				+"Roll:"+thisAHRS.roll.ToString("0.00")
-				+"FP"+ctrlforce.pitch.ToString("0.00")
-				+"Dsp:"+(thisAHRS.ptch-tgt).ToString("0.00")
-				+"Ptch:"+thisAHRS.ptch.ToString("0.00"));*/
+
 			oldstate.roll += ctrlforce.roll;
 			oldstate.pitch += ctrlforce.pitch;
 			oldstate.yaw += ctrlforce.yaw;
+			oldstate.mainThrottle += ctrlforce.mainThrottle;
 
 		}
 
@@ -124,6 +128,10 @@ namespace KTP2
 		public float setTgt(float newtgt){
 			tgt = newtgt;
 			return tgt;
+		}
+		public float setTgtTrim(float newtrim){
+			tgtAxisTrim = newtrim;
+			return newtrim;
 		}
 
 		public float chgTgt(float delta){
@@ -143,11 +151,24 @@ namespace KTP2
 			gain = newgain;
 		}
 
+		public void ActivateArm(){
+			currmode = armmode;
+			tgt = tgtarm;
+			armmode = APBrain.mode.off;
+		}
+		public string Statustxt (mode dispmode){
+			if (dispmode == currmode) {
+				return "ON";
+			} else if (dispmode == armmode) {
+				return "ARM";
+			} else {
+				return "OFF";
+			}
+		}
+
+
 		public void disconnect(){
-			/*vessel.OnFlyByWire -= currfconcallback;
-			currmode = APBrain.mode.off;
-			currfconcallback = null;*/
-			//this = null;//self destruct: AP Disc when sh*t hit the fan, no need to keep trim val
+
 		}
 
 		private float PIDctrl(float tgt, float value, float rate, mode mode){
@@ -171,10 +192,10 @@ namespace KTP2
 
 		}
 
-		private float NPIDctrl(float tgt, float value, mode mode){// for constant force-displacement curve
+		private float NPIDctrl(float tgt, float tgttrim, float value, mode mode){// for constant force-displacement curve
 			float displ = value - tgt;
 			getNPIDconst (mode, out NPIDconst);
-			tgtAxisHold = -NPIDconst [0] * (NPIDconst [1] * (displ * displ * displ) + NPIDconst [2] * displ);
+			tgtAxisHold = -NPIDconst [0] * (NPIDconst [1] * (displ * displ * displ) + NPIDconst [2] * displ)+tgttrim;
 
 			tgtAxisHold = Mathf.Clamp (tgtAxisHold, NPIDconst [3], NPIDconst [4]);
 			return tgtAxisHold;

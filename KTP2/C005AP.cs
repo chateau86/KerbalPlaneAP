@@ -115,6 +115,7 @@ namespace KTP2
 					if (ALTon) {
 						actptch.setmode (APBrain.mode.AltHold);
 						actptch.setTgt (GuiAHRS.BaroAlt);
+						actptch.setTgtTrim (GuiAHRS.ptch);
 					} else {
 						actptch.setmode (APBrain.mode.PtchLever);
 						actptch.setTgt (fltptchknob);
@@ -147,31 +148,29 @@ namespace KTP2
 			//try{fltptchknob = float.Parse(strptchknob);}
 
 			if (GUILayout.Button ("UP")) {//GUILayout.Button is "true" when clicked
-				/*if (fltptchknob <= +90f) {
-					fltptchknob += 1;.
-				}*/
-				fltptchknob=actptch.chgTgt (+1f);
+				if (!ALTon) {
+					fltptchknob = actptch.chgTgt (+1f);
+				} else {
+					fltptchknob++;
+				}
 			}
 			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
-				fltptchknob = actptch.setTgt (0f);
+				fltptchknob = actptch.setTgt ((float)(int)GuiAHRS.ptch);
 			}
 			if (GUILayout.Button ("DN")) {//GUILayout.Button is "true" when clicked
-				/*if (fltptchknob >= -90f) {
-					fltptchknob -= 1;
-				}*/
+				if (!ALTon) {
 				fltptchknob=actptch.chgTgt (-1f);
+				} else {
+					fltptchknob++;
+				}
 			}
-
-			/*if (actptch!=null){//&&actptch.currmode == APBrain.mode.PtchLever) {
-				actptch.setTgt (fltptchknob);
-				print ("PtchKnob:" + fltptchknob.ToString ("0.00"));
-			}*/
+				
 			//print ("At PtchKnob");
 			GUILayout.EndHorizontal ();
 			//-------------------
 			GUILayout.EndVertical ();
 
-			this.SetTextAreaString (" RCMD:" + fltrollknob + " PTCMD" + fltptchknob+" BARO:"+GuiAHRS.BaroAlt+" Rad:"+GuiAHRS.RadAlt+" VS:"+GuiAHRS.BaroVS);
+			this.SetTextAreaString ("BARO:"+GuiAHRS.BaroAlt.ToString("F2")+" Rad:"+GuiAHRS.RadAlt.ToString("F2")+" Spd:"+GuiAHRS.Tas.ToString("f2")+" AOA:"+GuiAHRS.aoa.ToString("F2")+" Sideslip:"+GuiAHRS.sideslip.ToString("F2")+" rho:"+GuiAHRS.reldensity.ToString("f2"));
 
 			GUILayout.TextArea (textAreaString);
 
