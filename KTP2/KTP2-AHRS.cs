@@ -6,6 +6,8 @@ using System.Text;
 using System.Reflection;
 using UnityEngine;
 using KSP.IO;
+using ferram4;
+
 
 namespace KTP2
 {
@@ -22,8 +24,17 @@ namespace KTP2
 		public float Tas, sideslip, aoa;
 		//private ThisVessel ThisVessel;
 
+		private Assembly thisAeroUtilAssembly;
+
 		public AHRS(Vessel ThisVessel){
 			this.ThisVessel = ThisVessel;
+
+			print ("AHRS INIT");
+
+			print ("LOAD FERRAM");//http://www.csharp-examples.net/reflection-examples/
+			thisAeroUtilAssembly = Assembly.LoadFile ("./FerramAerospaceResearch.dll");
+
+
 		}
 
 		public void updateAHRS(){//ThisVessel ThisVessel){//working like a charm
@@ -52,12 +63,6 @@ namespace KTP2
 			rollcomponentup = (float)Vector3d.Dot (rollvec, upUnit);
 			rollcomponentleft = (float)Vector3d.Dot (rollvec, leftunit);
 
-			Tas = (float) Vector3d.Dot (spdvec, Vector3d.Normalize (headingvec));
-
-			//density=(float)FlightGlobals.getAtmDensity(FlightGlobals.getStaticPressure(position,ThisGoddamnVessel.));
-			//density = (float)FlightGlobals.getStaticPressure ();
-			density = (float)ThisGoddamnVessel.atmDensity;
-			reldensity = density / 1.013f;
 
 			slipvec = Vector3d.Normalize (spdvec) - headingvec;
 			sideslip=(float)( (180/Math.PI)*Math.Asin(Vector3d.Dot(slipvec,rollvec)));
@@ -96,7 +101,16 @@ namespace KTP2
 				rollRate = (roll - lastroll) / TimeWarp.deltaTime;
 			}
 
-			//print ("DeltaB : " + (BaroAlt - lastBaroAlt).ToString ("F2") + " DeltaT : " + TimeWarp.deltaTime + "BVS : " + BaroVS);
+			Tas = (float) Vector3d.Dot (spdvec, Vector3d.Normalize (headingvec));
+
+			density = (float)FlightGlobals.getStaticPressure ();
+
+			//density = ferram4.FARAeroUtil.GetCurrentDensity(FlightGlobals.currentMainBody, BaroAlt); // TODO: Wrap my mind around reflection
+
+			reldensity = density / 1.013f;
+
+
+
 			}
 		public string debugAHRS(int dispmode){
 			string textAreaString;

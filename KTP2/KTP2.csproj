@@ -15,7 +15,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\..\..\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG; FERRAM</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -35,6 +35,9 @@
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\..\..\ksp-win-0-23-0 %281%29\KSP_win\KSP_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="FerramAerospaceResearch">
+      <HintPath>..\..\..\..\ksp-win-0-23-0 %281%29\KSP_win\GameData\FerramAerospaceResearch\Plugins\FerramAerospaceResearch.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

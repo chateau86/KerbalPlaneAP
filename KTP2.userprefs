@@ -2,11 +2,11 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="KTP2\KrAP140.cs">
     <Files>
-      <File FileName="KTP2\GUIStuff.cs" Line="54" Column="44" />
-      <File FileName="KTP2\C005AP.cs" Line="170" Column="23" />
+      <File FileName="KTP2\GUIStuff.cs" Line="1" Column="1" />
+      <File FileName="KTP2\C005AP.cs" Line="1" Column="1" />
       <File FileName="KTP2\KrAP140.cs" Line="70" Column="3" />
-      <File FileName="KTP2\KTP2-APBrain.cs" Line="166" Column="5" />
-      <File FileName="KTP2\KTP2-AHRS.cs" Line="43" Column="58" />
+      <File FileName="KTP2\KTP2-APBrain.cs" Line="1" Column="1" />
+      <File FileName="KTP2\KTP2-AHRS.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
