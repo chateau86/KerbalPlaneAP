@@ -39,6 +39,7 @@ namespace KTP2
 
 		float tgtAxisHold;
 		float tgtAxisTrim;
+		float timeconstant=20f;
 		public mode currmode;
 		public mode armmode;
 		public axis curraxis;
@@ -79,7 +80,7 @@ namespace KTP2
 				//Roll---------------------------------------------------
 				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
 			case mode.RollLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.01f,	0.5f};break;
-			case mode.HDGHold	:PIDconst=new float[]{	0.5f,		0.1f,		0.3f,		1f, 		0.01f,	0.5f};break;
+			case mode.HDGHold	:PIDconst=new float[]{	-0.5f,		0.1f,		0.3f,		1f, 		0.01f,	0.5f};break;
 				//Pitch---------------------------------------------------
 			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
 			case mode.AltHold	:PIDconst=new float[]{	1f,		0f,			0.1f,		1f, 		0.1f,	0.1f};break;
@@ -129,10 +130,17 @@ namespace KTP2
 				tgtAxisHold = NPIDctrl (tgt [(int)mode.AltHold], tgtAxisTrim, thisAHRS.BaroAlt, currmode);
 				ctrlforce.pitch = PIDctrl (tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate, mode.PtchLever);
 			}else if (currmode==mode.AltSel){
-				tgtAxisHold = NPIDctrl (tgt [(int)mode.AltSel], tgtAxisTrim, thisAHRS.BaroAlt, currmode);
+				tgtAxisHold = NPIDctrl (tgt [(int)mode.AltSel], 0, thisAHRS.BaroAlt, currmode);
 				ctrlforce.pitch = PIDctrl (tgtAxisHold, thisAHRS.BaroVS, 0f, currmode);//TODO:Add VS Rate
 			} else if (currmode == mode.VSHold) {
-				ctrlforce.pitch = PIDctrl (tgt [(int)mode.PtchLever], thisAHRS.BaroVS, 0f, currmode);//TODO:Add VS Rate
+				ctrlforce.pitch = PIDctrl (tgt [(int)mode.VSHold], thisAHRS.BaroVS, 0f, currmode);//TODO:Add VS Rate
+				if(armmode==mode.AltSel){
+					if(thisAHRS.BaroVS>0&&((tgt [(int)mode.AltSel]-thisAHRS.BaroAlt)<(tgt [(int)mode.VSHold]*timeconstant))){
+						this.ActivateArm();
+					}else if(thisAHRS.BaroVS<0&&((thisAHRS.BaroAlt-tgt [(int)mode.AltSel])<(tgt [(int)mode.VSHold]*timeconstant))){
+						this.ActivateArm();
+					}
+				}
 				//Yaw---------------------------------------------------
 			}else if(currmode==mode.NoSlip){
 				ctrlforce.yaw = PIDctrl (0f, thisAHRS.sideslip, thisAHRS.slipRate, currmode);

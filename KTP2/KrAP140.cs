@@ -132,6 +132,20 @@ namespace KTP2
 			}
 			if (GUILayout.Button ("A/T:" + ATon.ToString ())) {
 				ATon = !ATon;
+				if (ATon) {
+					if (actthr.armmode != APBrain.mode.off) {
+						actthr.ActivateArm();
+					} else {
+						actthr.setmode (APBrain.mode.clmp);
+					}
+				} else {
+					if (actthr.currmode != APBrain.mode.clmp) {
+						actthr.setarmmode (actthr.currmode);
+						actthr.setmode (APBrain.mode.off);
+					} else {
+						actthr.setmode (APBrain.mode.off);
+					}
+				}
 			}
 
 			if (GUILayout.Button ("YAW:" + ATon.ToString ())) {
@@ -145,7 +159,7 @@ namespace KTP2
 			GUILayout.EndHorizontal ();
 			//SPD--TAS for now
 			GUILayout.BeginHorizontal ();
-				if (GUILayout.Button ("SPD:" + actthr.Statustxt(APBrain.mode.SpdHold))) {
+			if (GUILayout.Button ("SPD:" + actthr.Statustxt(APBrain.mode.SpdHold))) {
 				SPDon = !SPDon;
 
 				if (SPDon && ATon) {
@@ -159,17 +173,17 @@ namespace KTP2
 					actthr.setarmmode (APBrain.mode.off);
 				}
 
-				}
-				if (GUILayout.Button ("-")) {
-				spdknob=actthr.chgTgt (APBrain.mode.SpdHold, -1f);
-				}
-				GUILayout.TextArea (spdknob.ToString());
-				if (GUILayout.Button ("0")) {
-				spdknob=actthr.setTgt (APBrain.mode.SpdHold, (float)(int)GuiAHRS.Ias);
-				}
-				if (GUILayout.Button ("+")) {
-				spdknob=actthr.chgTgt (APBrain.mode.SpdHold, +1f);
-				}
+			}
+			if (GUILayout.Button ("-")) {
+			spdknob=actthr.chgTgt (APBrain.mode.SpdHold, -1f);
+			}
+			GUILayout.TextArea (spdknob.ToString());
+			if (GUILayout.Button ("0")) {
+			spdknob=actthr.setTgt (APBrain.mode.SpdHold, (float)(int)GuiAHRS.Ias);
+			}
+			if (GUILayout.Button ("+")) {
+			spdknob=actthr.chgTgt (APBrain.mode.SpdHold, +1f);
+			}
 			GUILayout.EndHorizontal ();
 			//HDG
 			GUILayout.BeginHorizontal ();
@@ -199,11 +213,27 @@ namespace KTP2
 				hdgknob=actroll.chgTgt (APBrain.mode.HDGHold, +1f);
 				}
 			GUILayout.EndHorizontal ();
-			//ALT
+			//ALT---------------------------------------------------------------------------------------------------------------------
 			GUILayout.BeginHorizontal ();
-				if (GUILayout.Button ("ALT:" + actptch.Statustxt(APBrain.mode.AltSel))) {
 
+			if (GUILayout.Button ("ALT:" + actptch.Statustxt(APBrain.mode.AltSel))) {
+				ALTon = !ALTon;
+				if (ALTon) {
+					if (actptch.currmode == APBrain.mode.VSHold) {
+						actptch.setarmmode (APBrain.mode.AltSel);
+					} else {
+						actptch.setmode (APBrain.mode.AltSel);
+					}
+				} else {
+					if (actptch.currmode == APBrain.mode.VSHold) {
+						actptch.setarmmode (APBrain.mode.off);
+					} else {
+						actptch.setmode (APBrain.mode.VSHold);
+					}
 				}
+			}
+
+
 				if (GUILayout.Button ("-")) {
 				altknob=actptch.chgTgt (APBrain.mode.AltSel, -10f);
 				}
@@ -220,20 +250,27 @@ namespace KTP2
 			//VS
 			GUILayout.BeginHorizontal ();
 			if (GUILayout.Button ("VS:" + actptch.Statustxt(APBrain.mode.VSHold))) {
-					ATon = !ATon;
+				VSon = !VSon;
+				if (VSon) {
+					actptch.setmode (APBrain.mode.VSHold);
+				} else {
+					actptch.setmode (APBrain.mode.off);
 				}
-				if (GUILayout.Button ("-")) {
-				vsknob = actptch.chgTgt (APBrain.mode.VSHold, -10);
-				}
+
+
+			}
+			if (GUILayout.Button ("-")) {
+			vsknob = actptch.chgTgt (APBrain.mode.VSHold, -10);
+			}
 
 			GUILayout.TextArea (vsknob.ToString());
 
-				if (GUILayout.Button ("0")) {
-				vsknob = actptch.setTgt (APBrain.mode.VSHold, 0f);
-				}
-				if (GUILayout.Button ("+")) {
-				vsknob = actptch.chgTgt (APBrain.mode.VSHold, +10);
-				}
+			if (GUILayout.Button ("0")) {
+			vsknob = actptch.setTgt (APBrain.mode.VSHold, 0f);
+			}
+			if (GUILayout.Button ("+")) {
+			vsknob = actptch.chgTgt (APBrain.mode.VSHold, +10);
+			}
 			GUILayout.EndHorizontal ();
 			GUILayout.EndVertical ();
 
