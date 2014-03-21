@@ -114,11 +114,11 @@ namespace KTP2
 				if (APon) {
 					if (ALTon) {
 						actptch.setmode (APBrain.mode.AltHold);
-						actptch.setTgt (GuiAHRS.BaroAlt);
+						actptch.setTgt (APBrain.mode.AltHold,GuiAHRS.BaroAlt);
 						actptch.setTgtTrim (GuiAHRS.ptch);
 					} else {
 						actptch.setmode (APBrain.mode.PtchLever);
-						actptch.setTgt (fltptchknob);
+						actptch.setTgt (APBrain.mode.PtchLever,fltptchknob);
 					}
 				}
 
@@ -131,13 +131,13 @@ namespace KTP2
 			//try{fltrollknob = float.Parse(strrollknob);}
 
 			if (GUILayout.Button ("<")) {//GUILayout.Button is "true" when clicked
-				fltrollknob=actroll.chgTgt (-1f);
+				fltrollknob=actroll.chgTgt (APBrain.mode.RollLever,-1f);
 			}
 			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
-				fltrollknob = actroll.setTgt (0.0f);
+				fltrollknob = actroll.setTgt (APBrain.mode.RollLever,0.0f);
 			}
 			if (GUILayout.Button (">")) {//GUILayout.Button is "true" when clicked
-				fltrollknob=actroll.chgTgt (+1f);
+				fltrollknob=actroll.chgTgt (APBrain.mode.RollLever,+1f);
 			}
 
 
@@ -149,17 +149,17 @@ namespace KTP2
 
 			if (GUILayout.Button ("UP")) {//GUILayout.Button is "true" when clicked
 				if (!ALTon) {
-					fltptchknob = actptch.chgTgt (+1f);
+					fltptchknob = actptch.chgTgt (APBrain.mode.PtchLever,+1f);
 				} else {
 					fltptchknob++;
 				}
 			}
 			if (GUILayout.Button ("0")) {//GUILayout.Button is "true" when clicked
-				fltptchknob = actptch.setTgt ((float)(int)GuiAHRS.ptch);
+				fltptchknob = actptch.setTgt (APBrain.mode.PtchLever,(float)(int)GuiAHRS.ptch);
 			}
 			if (GUILayout.Button ("DN")) {//GUILayout.Button is "true" when clicked
 				if (!ALTon) {
-				fltptchknob=actptch.chgTgt (-1f);
+					fltptchknob=actptch.chgTgt (APBrain.mode.PtchLever,-1f);
 				} else {
 					fltptchknob++;
 				}

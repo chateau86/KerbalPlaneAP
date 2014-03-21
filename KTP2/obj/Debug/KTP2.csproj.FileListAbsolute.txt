@@ -27,3 +27,6 @@ D:\ksp-install\PLUGIN\PLUGIN-GIT\KerbalPlaneAP\KTP2\obj\Debug\KTP2.dll
 D:\ksp-install\PLUGIN\PLUGIN-GIT\KerbalPlaneAP\KTP2\obj\Debug\KTP2.pdb
 D:\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins\KTP2.dll
 D:\ksp-win-0-23-0 (1)\KSP_win\GameData\ModJeb2\Plugins\KTP2.pdb
+D:\git\KerbalPlaneAP\KTP2\obj\Debug\KTP2.csprojResolveAssemblyReference.cache
+D:\git\KerbalPlaneAP\KTP2\obj\Debug\KTP2.dll
+D:\git\KerbalPlaneAP\KTP2\obj\Debug\KTP2.pdb

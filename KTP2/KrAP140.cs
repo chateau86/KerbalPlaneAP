@@ -132,7 +132,7 @@ namespace KTP2
 					//fltHDGknob = GuiAHRS.hdg;
 					} else {
 						actroll.setmode (APBrain.mode.RollLever);
-						actroll.setTgt (0f);
+					actroll.setTgt (APBrain.mode.RollLever,0f);
 					}
 
 
