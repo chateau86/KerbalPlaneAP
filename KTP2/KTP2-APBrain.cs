@@ -21,13 +21,16 @@ namespace KTP2
 			AltSel,
 			VSHold,
 
+			NoSlip,
+
+			clmp,
 			SpdHold
 		}
 		public float[] PIDconst; //= { 1f, 0.2f, 0.05f }; // {0roll, 1pitch, 2yaw}:{{kForce, kDamp, kTrim}}
 		public float[] NPIDconst;
 		float trimval;
 		//float tgt;
-		float[] tgt = new float[(int)mode.SpdHold];
+		float[] tgt = new float[(int)mode.SpdHold+1];
 		float tgtarm;
 		float gain=0.5f;
 		//float PtchUpLim=+45f;
@@ -73,12 +76,18 @@ namespace KTP2
 			switch(mode)//:{gain, kCube, kForce, kDamp, kTrim, CtrlRate/sec}
 			{
 			case mode.off		:PIDconst=new float[]{	1f,		1f,			1f,			0.2f, 		0.05f,	0.5f};break;
-				//Pitch---------------------------------------------------
-			case mode.AltHold	:PIDconst=new float[]{	1f,		0f,			0.1f,		1f, 		0.1f,	0.1f};break;
-			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
 				//Roll---------------------------------------------------
 				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
-			case mode.RollLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
+			case mode.RollLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.01f,	0.5f};break;
+			case mode.HDGHold	:PIDconst=new float[]{	0.5f,		0.1f,		0.3f,		1f, 		0.01f,	0.5f};break;
+				//Pitch---------------------------------------------------
+			case mode.PtchLever	:PIDconst=new float[]{	1f,		0.1f,		0.3f,		1f, 		0.1f,	0.5f};break;
+			case mode.AltHold	:PIDconst=new float[]{	1f,		0f,			0.1f,		1f, 		0.1f,	0.1f};break;
+			case mode.AltSel	:PIDconst=new float[]{	1f,		0f,			0.1f,		1f, 		0.1f,	0.1f};break;
+			case mode.VSHold	:PIDconst=new float[]{	0.1f,		0.001f,		0.2f,		1f, 		0.01f,	0.5f};break;
+				//Yaw---------------------------------------------------
+				//Spd---------------------------------------------------
+			case mode.SpdHold	:PIDconst=new float[]{	0.01f,		0.1f,		0.3f,		1f, 		0.01f,	0.05f};break;
 			default: 			 PIDconst=new float[]{	1f,		1f, 		1f, 		0.2f, 		0.05f,	0.5f};	break;
 			}
 		}
@@ -88,6 +97,7 @@ namespace KTP2
 			case mode.off		:NPIDconst=new float[]{	0f,		0f,		0f,		0f, 	0f	};break;
 				//Pitch---------------------------------------------------
 			case mode.AltHold	:NPIDconst=new float[]{	1f,		0f,		0.1f,		-30f, 	+45f	};break;
+			case mode.AltSel	:NPIDconst=new float[]{	10f,		0f,		0.1f,		-30f, 	+45f	};break;
 			case mode.PtchLever	:NPIDconst=new float[]{	0f,		0f,		0f,		0f, 	0f	};break;
 				//Roll---------------------------------------------------
 				//case mode.RollLever	:PIDconst=new float[]{	1f,		0.5f,		0.3f,		1f, 		0.05f,	0.5f};break;
@@ -107,15 +117,31 @@ namespace KTP2
 			//print ("Put Yo' hands up");
 			thisAHRS.updateAHRS ();//vessel);
 			//print ("cheestick!");
+
+				//Roll---------------------------------------------------
 			if (currmode == mode.RollLever) {
-				ctrlforce.roll = PIDctrl (tgt[(int)mode.RollLever], thisAHRS.roll, thisAHRS.rollRate, currmode);
+				ctrlforce.roll = PIDctrl (tgt [(int)mode.RollLever], thisAHRS.roll, thisAHRS.rollRate, currmode);
+			
+				//Ptch---------------------------------------------------
 			} else if (currmode == mode.PtchLever) {
-				ctrlforce.pitch = PIDctrl (tgt[(int)mode.PtchLever], thisAHRS.ptch, thisAHRS.ptchRate, currmode);
+				ctrlforce.pitch = PIDctrl (tgt [(int)mode.PtchLever], thisAHRS.ptch, thisAHRS.ptchRate, currmode);
 			} else if (currmode == mode.AltHold) {//Should be replaced with VS based hold
-				tgtAxisHold = NPIDctrl (tgt[(int)mode.AltHold], tgtAxisTrim, thisAHRS.BaroAlt, currmode);
+				tgtAxisHold = NPIDctrl (tgt [(int)mode.AltHold], tgtAxisTrim, thisAHRS.BaroAlt, currmode);
 				ctrlforce.pitch = PIDctrl (tgtAxisHold, thisAHRS.ptch, thisAHRS.ptchRate, mode.PtchLever);
+			}else if (currmode==mode.AltSel){
+				tgtAxisHold = NPIDctrl (tgt [(int)mode.AltSel], tgtAxisTrim, thisAHRS.BaroAlt, currmode);
+				ctrlforce.pitch = PIDctrl (tgtAxisHold, thisAHRS.BaroVS, 0f, currmode);//TODO:Add VS Rate
+			} else if (currmode == mode.VSHold) {
+				ctrlforce.pitch = PIDctrl (tgt [(int)mode.PtchLever], thisAHRS.BaroVS, 0f, currmode);//TODO:Add VS Rate
+				//Yaw---------------------------------------------------
+			}else if(currmode==mode.NoSlip){
+				ctrlforce.yaw = PIDctrl (0f, thisAHRS.sideslip, thisAHRS.slipRate, currmode);
+				//Spd---------------------------------------------------
+			} else if (currmode == mode.clmp) {
+				ctrlforce.mainThrottle = tgt [(int)currmode];
 			} else if (currmode == mode.SpdHold) {
 				//TODO
+				ctrlforce.mainThrottle = PIDctrl (tgt [(int)mode.SpdHold], thisAHRS.Ias, 0f, currmode);//TODO:Add IAS rate
 			}
 
 			oldstate.roll += ctrlforce.roll;
@@ -137,13 +163,29 @@ namespace KTP2
 
 		public float chgTgt(mode tgtmode,float delta){
 			tgt[(int)tgtmode]+= delta;
-			//tgt = Mathf.Clamp (tgt, -90f, +90f);
+			if (tgtmode == mode.RollLever || tgtmode == mode.PtchLever) {
+				tgt [(int)tgtmode] = Mathf.Clamp (tgt[(int)tgtmode], -90f, +90f);
+			}else
+				if (tgtmode == mode.HDGHold) {
+					if (tgt [(int)tgtmode] >= 360f) {
+						tgt [(int)tgtmode] -= 360f;
+					}else if (tgt [(int)tgtmode] < 0f) {
+						tgt [(int)tgtmode] += 360;
+					}
+			}
 			return tgt[(int)tgtmode];
 		}
 
 		public void setmode(APBrain.mode newmode){
 			currmode = newmode;
 			if (currmode == APBrain.mode.AltHold && tgt[(int)mode.AltHold] == 0) {
+				tgt[(int)mode.AltHold] = thisAHRS.BaroAlt;
+			}
+		}
+
+		public void setarmmode(APBrain.mode newmode){
+			armmode = newmode;
+			if (armmode == APBrain.mode.AltHold && tgt[(int)mode.AltHold] == 0) {
 				tgt[(int)mode.AltHold] = thisAHRS.BaroAlt;
 			}
 		}

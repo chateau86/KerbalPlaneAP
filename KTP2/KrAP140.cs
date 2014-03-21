@@ -14,14 +14,15 @@ namespace KTP2
 	{
 		string textAreaString="";
 
-		float fltHDGknob;//deg
-		float fltVSknob;//deg
+		//float fltHDGknob;//deg
+		//float fltVSknob;//deg
 		float spdknob;
 		float hdgknob;
 		float altknob;
 		float vsknob;
 		bool APon;
 		bool ATon;
+		bool YAWon;
 		bool SPDon;
 		bool ALTon;
 		bool ALTarm;
@@ -33,6 +34,7 @@ namespace KTP2
 		//public Vessel localcurrentvessel;
 		public APBrain actroll;
 		public APBrain actptch;
+		public APBrain actyaw;
 		public APBrain actthr;
 		private AHRS GuiAHRS;
 		public int dispmode=0;
@@ -61,11 +63,12 @@ namespace KTP2
 			//localcurrentvessel = thisvessel;
 			actroll = new APBrain (APBrain.mode.off, localcurrentvessel);
 			actptch = new APBrain (APBrain.mode.off, localcurrentvessel);
+			actyaw = new APBrain (APBrain.mode.off, localcurrentvessel);
 			actthr = new APBrain (APBrain.mode.off, localcurrentvessel);
 			GuiAHRS = new AHRS (localcurrentvessel);
 			GuiAHRS.updateAHRS ();
-			fltHDGknob = GuiAHRS.hdg;
-			fltVSknob = 0;
+			hdgknob = (float)(int)GuiAHRS.hdg;
+			vsknob = 0;
 		}
 
 		public override void GuiCallbackWrapper ()
@@ -101,25 +104,71 @@ namespace KTP2
 
 			if (GUILayout.Button ("A/P:" + APon.ToString ())) {
 				APon = !APon;
+				if (APon) {
+
+					if (actroll.armmode != APBrain.mode.off) {
+						actroll.ActivateArm ();
+					} else {
+						actroll.setmode (APBrain.mode.RollLever);
+						actroll.setTgt (APBrain.mode.RollLever, 0f);
+					}
+
+					if (actptch.armmode != APBrain.mode.off) {
+						actptch.ActivateArm ();
+					} else {
+						actptch.setmode (APBrain.mode.VSHold);
+						//actptch.setTgt (APBrain.mode.VSHold, 0f);
+					}
+
+				} else {
+
+					actroll.setarmmode (actroll.currmode);
+					actroll.setmode (APBrain.mode.off);
+
+					actptch.setarmmode (actptch.currmode);
+					actptch.setmode (APBrain.mode.off);
+				}
+
 			}
 			if (GUILayout.Button ("A/T:" + ATon.ToString ())) {
 				ATon = !ATon;
+			}
+
+			if (GUILayout.Button ("YAW:" + ATon.ToString ())) {
+				YAWon = !YAWon;
+				if (YAWon) {
+					actyaw.setmode (APBrain.mode.NoSlip);
+				} else {
+					actyaw.setmode (APBrain.mode.off);
+				}
 			}
 			GUILayout.EndHorizontal ();
 			//SPD--TAS for now
 			GUILayout.BeginHorizontal ();
 				if (GUILayout.Button ("SPD:" + actthr.Statustxt(APBrain.mode.SpdHold))) {
-					SPDon = !SPDon;
+				SPDon = !SPDon;
+
+				if (SPDon && ATon) {
+					actthr.setmode (APBrain.mode.SpdHold);
+				} else if ((!SPDon) && ATon) {
+					actthr.setmode (APBrain.mode.clmp);
+					actthr.setTgt (APBrain.mode.clmp, 0.95f);
+				} else if (SPDon && (!ATon)) {
+					actthr.setarmmode (APBrain.mode.SpdHold);
+				} else if ((!SPDon) && (!ATon)) {
+					actthr.setarmmode (APBrain.mode.off);
+				}
+
 				}
 				if (GUILayout.Button ("-")) {
-
+				spdknob=actthr.chgTgt (APBrain.mode.SpdHold, -1f);
 				}
 				GUILayout.TextArea (spdknob.ToString());
 				if (GUILayout.Button ("0")) {
-
+				spdknob=actthr.setTgt (APBrain.mode.SpdHold, (float)(int)GuiAHRS.Ias);
 				}
 				if (GUILayout.Button ("+")) {
-					ATon = !ATon;
+				spdknob=actthr.chgTgt (APBrain.mode.SpdHold, +1f);
 				}
 			GUILayout.EndHorizontal ();
 			//HDG
@@ -138,34 +187,34 @@ namespace KTP2
 
 				}
 				if (GUILayout.Button ("-")) {
-					ATon = !ATon;
+				hdgknob=actroll.chgTgt (APBrain.mode.HDGHold, -1f);
 				}
 
 			GUILayout.TextArea (hdgknob.ToString());
 
 				if (GUILayout.Button ("0")) {
-					ATon = !ATon;
+				hdgknob=actroll.setTgt (APBrain.mode.HDGHold, (float)(int)GuiAHRS.hdg);
 				}
 				if (GUILayout.Button ("+")) {
-					ATon = !ATon;
+				hdgknob=actroll.chgTgt (APBrain.mode.HDGHold, +1f);
 				}
 			GUILayout.EndHorizontal ();
 			//ALT
 			GUILayout.BeginHorizontal ();
 				if (GUILayout.Button ("ALT:" + actptch.Statustxt(APBrain.mode.AltSel))) {
-					ATon = !ATon;
+
 				}
 				if (GUILayout.Button ("-")) {
-					ATon = !ATon;
+				altknob=actptch.chgTgt (APBrain.mode.AltSel, -10f);
 				}
 
 			GUILayout.TextArea (altknob.ToString());
 
 				if (GUILayout.Button ("0")) {
-					ATon = !ATon;
+				altknob=actptch.setTgt (APBrain.mode.AltSel,(float)(10*(int)(GuiAHRS.BaroAlt/10)));
 				}
 				if (GUILayout.Button ("+")) {
-					ATon = !ATon;
+				altknob=actptch.chgTgt (APBrain.mode.AltSel, +10f);
 				}
 			GUILayout.EndHorizontal ();
 			//VS
@@ -174,16 +223,16 @@ namespace KTP2
 					ATon = !ATon;
 				}
 				if (GUILayout.Button ("-")) {
-					ATon = !ATon;
+				vsknob = actptch.chgTgt (APBrain.mode.VSHold, -10);
 				}
 
 			GUILayout.TextArea (vsknob.ToString());
 
 				if (GUILayout.Button ("0")) {
-					ATon = !ATon;
+				vsknob = actptch.setTgt (APBrain.mode.VSHold, 0f);
 				}
 				if (GUILayout.Button ("+")) {
-					ATon = !ATon;
+				vsknob = actptch.chgTgt (APBrain.mode.VSHold, +10);
 				}
 			GUILayout.EndHorizontal ();
 			GUILayout.EndVertical ();
