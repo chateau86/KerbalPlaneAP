@@ -1,0 +1,5 @@
+D:\ksp-install\PLUGIN\PLUGIN-GIT\KerbalPlaneAP\New_AP\KTP2\obj\Debug\KSpG.csprojResolveAssemblyReference.cache
+D:\ksp-install\ksp-win-0-23-5-PluginBuild\KSP_win\GameData\KSpG\Plugins\KSpG.dll
+D:\ksp-install\ksp-win-0-23-5-PluginBuild\KSP_win\GameData\KSpG\Plugins\KSpG.pdb
+D:\ksp-install\PLUGIN\PLUGIN-GIT\KerbalPlaneAP\New_AP\KTP2\obj\Debug\KSpG.dll
+D:\ksp-install\PLUGIN\PLUGIN-GIT\KerbalPlaneAP\New_AP\KTP2\obj\Debug\KSpG.pdb
